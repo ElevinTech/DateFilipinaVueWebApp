@@ -6,7 +6,8 @@ const createStore = () => {
     state: {
       db: db,
       user: '',
-      dashboardUsers: []
+      dashboardUsers: [],
+      uid: ''
     },
 
     getters: {
@@ -25,17 +26,18 @@ const createStore = () => {
     },
 
     mutations: {
-      setUser(state, payload) {
-        state.user = payload
+      SET_USER(state, user){
+        state.user = user
       },
 
-      ADD_USER(state, payload){
-        state.users.push(payload)
+      SET_UID(state, uid){
+        state.uid = uid
       },
 
-      SET_USER(state, { user } ){
+      ADD_USER(state, { user } ){
         state.dashboardUsers.push(user.data())
       }
+
     },
 
     actions: {
@@ -49,11 +51,6 @@ const createStore = () => {
 
       signOut() {
         return auth.signOut()
-      },
-
-      getUsers ({ commit }) {
-        commit('ADD_USER', { firstName: 'andrew ford', lastName: 'medina' })
-        commit('ADD_USER', { firstName: 'richie', lastName: 'horsie' })
       },
 
       async getRandomUsers ({ commit, rootState }) {
@@ -72,11 +69,41 @@ const createStore = () => {
         randomIndex.push(Math.floor(Math.random() * (523 - 0) + 0))
 
         this.state.dashboardUsers = []
-
         
         let userRef = db.collection('users').where('indexByGender', 'in', randomIndex).limit(9)
         let users = await userRef.get()
-        users.forEach(user => commit('SET_USER', { user }))
+        users.forEach(user => commit('ADD_USER', { user }))
+      },
+
+      async getMaxGenderIndex({ commit }, { gender }){
+
+        return db
+          .collection('users')
+          .where('gender', '==', gender)
+          .orderBy('indexByGender', 'desc')
+          .limit(1)
+          .get()
+          
+      },
+
+      updatePersonalInfoFields({ commit }, { fields }){
+
+        return db
+          .collection('users')
+          .doc(this.state.uid)
+          .update(fields)
+          
+      },
+
+      async getUser({ commit }){
+
+        let uid = this.state.uid
+        let userRef = db.collection('users').doc(uid)
+        await userRef.get()
+          .then((user) => {
+            commit('SET_USER', user.data())
+          })
+
       }
     }
   })

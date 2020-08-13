@@ -20,7 +20,7 @@
                 dark
                 flat
               >
-                <v-toolbar-title>Login form</v-toolbar-title>
+                <v-toolbar-title>Register form</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
@@ -54,11 +54,20 @@
                     type="password"
                     v-model="password"
                   ></v-text-field>
+
+                  <v-text-field
+                    id="confirm_password"
+                    label="Confirm Password"
+                    name="confir_password"
+                    prepend-icon="mdi-lock"
+                    type="password"
+                    v-model="confirm_password"
+                  ></v-text-field>
                 </v-form>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn @click="login" color="primary">Login</v-btn>
+                <v-btn @click="register" color="primary">Register</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -74,7 +83,8 @@ export default {
   data() {
     return {
       email: "",
-      password: ""
+      password: "",
+      confirm_password: ""
     };
   },
   props: {
@@ -84,20 +94,22 @@ export default {
   },
   mounted(){
 
+    
+
   },
   methods: {
-    login(){
+    register(){
 
       this.$store
-        .dispatch("signInWithEmail", {
+        .dispatch("signUp", {
           email: this.email,
           password: this.password
         })
         .then(() => {
           this.email = "";
           this.password = "";
-
-          this.$router.push('/dashboard')
+          alert("has registered")
+        //   this.$router.push('/dashboard')
         })
         .catch(err => {
           alert(err.message);

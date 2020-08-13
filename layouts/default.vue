@@ -11,11 +11,11 @@ export default {
   created() {
       const user= this.$store.state.user
 
-      if (user != null){
-        this.$router.push('/dashboard')
-      } else {
-        console.log("user is null")
-      }
+      // if (user != null){
+      //   this.$router.push('/dashboard')
+      // } else {
+      //   console.log("user is null")
+      // }
   },
   computed: {
     

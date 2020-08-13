@@ -20,7 +20,7 @@
       </v-btn>
     </v-toolbar>
     <br>
-    <h1>Welcome {{ $store.state.user.email }}</h1>
+    <h1>Welcome {{ $store.state.user.firstName }} - {{ $store.state.user.email }}</h1>
 
     <v-main>
       <v-container
