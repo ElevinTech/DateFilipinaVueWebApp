@@ -32,10 +32,9 @@
                   style="marginBottom: 25px; marginRight: 5px; marginLeft: 5px;"
                 >
 
-                <!-- comment out image loading temporarily - mahina internet ko -->
-                <!--  -->
+                <!-- v-bind:src="user.userProfileMainImageUrl" -->
                   <v-img
-                    v-bind:src="user.userProfileMainImageUrl"
+                    
                     height="400px"
                     @click="viewUser(user)"
                   ></v-img>
@@ -134,6 +133,10 @@ export default {
 
     getDashboardUsers(){
       this.$store.dispatch("getFeaturedUsers")
+    },
+
+    likeUser(){
+      // this.$store.dispatch("likeUser", {currentUser: this.currentUser, otherUser: otherUser})
     }
   }
 }

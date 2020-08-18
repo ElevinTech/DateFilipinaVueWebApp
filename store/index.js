@@ -134,6 +134,24 @@ const createStore = () => {
         var getUserChatList = functions.httpsCallable('getUserChatList');
         return getUserChatList({});
       },
+
+      likeUser({ commit }, { currentUser, otherUser }){
+
+        const time = Math.floor((new Date()).getTime() / 1000)
+
+        db.collection('user-likes').doc(currentUser.uid).collection('likes-who').doc(otherUser.uid).set({
+          user: otherUser.uid,
+          date: time.toString()
+        });
+
+        db.collection('user-likes').doc(otherUser.uid).collection('liked-by').doc(currentUser.uid).set({
+          user: currentUser.uid,
+          date: time.toString()
+        });
+
+        alert("User liked!")
+        
+      }
     }
   })
 }

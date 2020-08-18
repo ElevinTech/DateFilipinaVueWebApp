@@ -1,5 +1,5 @@
 <template >
-  <v-container class="grey lighten-5" v-if="user">
+  <v-container class="grey lighten-5" v-if="otherUser">
 
     <v-row>
       <v-col cols="12" sm="12">
@@ -15,8 +15,10 @@
           outlined
           tile
         >
+
+        <!-- v-bind:src="otherUser.userProfileMainImageUrl" -->
           <v-img
-            v-bind:src="user.userProfileMainImageUrl"
+            
             height="600px"
           ></v-img>
         
@@ -35,12 +37,12 @@
           outlined
           tile
         >
-          <h1>{{ user.firstName }}</h1>
-          <h2>{{ user.age }}</h2>
+          <h1>{{ otherUser.firstName }}</h1>
+          <h2>{{ otherUser.age }}</h2>
 
           <br>
 
-            <div v-for="(value, name) in user.personalInfo"  v-bind:key="value.id">
+            <div v-for="(value, name) in otherUser.personalInfo"  v-bind:key="value.id">
               {{ name }}: {{ value }}
             </div>
 
@@ -60,7 +62,7 @@
           tile
         >
 
-        <v-btn>Like</v-btn>
+        <v-btn @click="likeUser()">Like</v-btn>
         <v-btn @click="chatUser()">Chat</v-btn>
         </v-card>
       </v-col>
@@ -76,7 +78,8 @@ export default {
   data() {
     return {
       uid: this.$route.params.id,
-      user: this.$store.state.selectedUser
+      otherUser: this.$store.state.selectedUser,
+      currentUser: this.$store.state.user
     };
   },
   methods:{
@@ -87,12 +90,16 @@ export default {
         // console.log(this.user)
         // this.$store.dispatch("setSelectedUser", { user: user })
         this.$router.replace({
-            path: '../chat/' + this.user.uid
+            path: '../chat/' + this.otherUser.uid
         })
-      },
+    },
+    likeUser(){
+      this.$store.dispatch("likeUser", {currentUser: this.currentUser, otherUser: this.otherUser})
+    }
+
   },
   created(){
-    console.log(this.user)
+    // console.log(this.user)
     // var getUser = this.$store.dispatch("getUserById", {id: this.uid})
 
     // getUser.then(user => {
