@@ -8,11 +8,7 @@
       <v-spacer></v-spacer>
 
       <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-
-      <v-btn icon>
-        <v-icon>mdi-heart</v-icon>
+        <v-icon>mdi-chat</v-icon>
       </v-btn>
 
       <v-btn @click="logout" icon>
@@ -30,14 +26,18 @@
 
       <v-flex d-flex>
         <v-layout wrap>
-            <v-flex md4 v-for="user in dashboardUsers" :key="user.id">
+            <v-flex md2 v-for="user in dashboardUsers" :key="user.id">
                 <v-card
                   class="mx-auto"
                   style="marginBottom: 25px; marginRight: 5px; marginLeft: 5px;"
                 >
+
+                <!-- comment out image loading temporarily - mahina internet ko -->
+                <!--  -->
                   <v-img
                     v-bind:src="user.userProfileMainImageUrl"
-                    height="200px"
+                    height="400px"
+                    @click="viewUser(user)"
                   ></v-img>
 
                   <v-card-title>
@@ -45,27 +45,20 @@
                   </v-card-title>
 
                   <v-card-subtitle>
-                    {{ user.bio }}
+                    Age: {{ user.age }}
                   </v-card-subtitle>
 
                   <v-card-actions>
-                    <v-btn text>Chat</v-btn>
+                    <v-btn @click="chatUser(user)">Chat</v-btn>
 
                     <v-btn
-                      color="purple"
-                      text
+                      
                     >
                       Like
                     </v-btn>
 
                     <v-spacer></v-spacer>
-
-                    <v-btn
-                      icon
-                      @click="show = !show"
-                    >
-                      <v-icon>{{ show ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-                    </v-btn>
+                    
                   </v-card-actions>
 
                   <v-expand-transition>
@@ -99,14 +92,13 @@ export default {
   data(){
     return {
       firstName: '',
-      dashboardUsers: []
+      dashboardUsers: [],
+      dashboardUsersUid: []
     }
   },
   created(){
-
-    this.$store.dispatch("getRandomUsers")
+    this.getDashboardUsers()
     this.dashboardUsers = this.$store.state.dashboardUsers
-    
   },
   methods:{
     logout(){
@@ -121,8 +113,27 @@ export default {
     },
 
     reloadUsers(){
-      this.$store.dispatch("getRandomUsers")
-      this.dashboardUsers = this.$store.state.dashboardUsers
+      this.getDashboardUsers()
+    },
+
+    viewUser(user){
+      console.log(user)
+      this.$store.dispatch("setSelectedUser", { user: user })
+      this.$router.push({
+          path: 'user/' + user.uid
+      })
+    },
+
+    chatUser(user){
+      console.log(user)
+      this.$store.dispatch("setSelectedUser", { user: user })
+      this.$router.push({
+          path: 'chat/' + user.uid
+      })
+    },
+
+    getDashboardUsers(){
+      this.$store.dispatch("getFeaturedUsers")
     }
   }
 }

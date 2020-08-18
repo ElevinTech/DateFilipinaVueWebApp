@@ -1,5 +1,5 @@
 import Vuex from 'vuex'
-import { auth, db } from '~/plugins/firebase.js'
+import { auth, db, functions } from '~/plugins/firebase.js'
 
 const createStore = () => {
   return new Vuex.Store({
@@ -7,7 +7,8 @@ const createStore = () => {
       db: db,
       user: '',
       dashboardUsers: [],
-      uid: ''
+      uid: '',
+      selectedUser: null
     },
 
     getters: {
@@ -34,8 +35,12 @@ const createStore = () => {
         state.uid = uid
       },
 
-      ADD_USER(state, { user } ){
-        state.dashboardUsers.push(user.data())
+      SET_DASHBOARD_USERS(state, { users }){
+        users.forEach(user => state.dashboardUsers.push(user))
+      },
+
+      SET_SELECTED_USER(state, user){
+        state.selectedUser = user
       }
 
     },
@@ -51,6 +56,14 @@ const createStore = () => {
 
       signOut() {
         return auth.signOut()
+      },
+
+      getFeaturedUsers({ commit }){
+        var getFeaturedUsers = functions.httpsCallable('getFeaturedUsers');
+        getFeaturedUsers({}).then(function(result) {
+          var users = result.data
+          commit('SET_DASHBOARD_USERS', { users })
+        });
       },
 
       async getRandomUsers ({ commit, rootState }) {
@@ -104,7 +117,23 @@ const createStore = () => {
             commit('SET_USER', user.data())
           })
 
-      }
+      },
+
+      getUserById({ commit }, { id }){
+        return db
+        .collection('users')
+        .doc(id)
+        .get()
+      },
+
+      setSelectedUser({ commit }, { user }){
+        commit('SET_SELECTED_USER', user )
+      },
+
+      getChatList({ commit }){
+        var getUserChatList = functions.httpsCallable('getUserChatList');
+        return getUserChatList({});
+      },
     }
   })
 }

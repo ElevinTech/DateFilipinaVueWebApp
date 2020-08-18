@@ -23,10 +23,11 @@ export const auth = firebase.auth()
 export const db = firebase.firestore()
 export const functions = firebase.functions()
 
-console.log(functions)
-var addMessage = firebase.functions().httpsCallable('helloWorldCallable');
-addMessage({string: "akala ko ikaw ay aken", int: 2}).then(function(result) {
-  // Read result of the Cloud Function.
-  console.log(result.data)
-});
+// console.log(functions)
+// var addMessage = firebase.functions().httpsCallable('helloWorldCallable');
+// addMessage({string: "akala ko ikaw ay aken", int: 2}).then(function(result) {
+//   // Read result of the Cloud Function.
+//   console.log("helloWorldCallable")
+//   console.log(result.data)
+// });
 export default firebase
