@@ -1,41 +1,14 @@
 <template>
-  <div>
-    <v-toolbar>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+    <!-- <h1 v-if="user">Welcome {{ user.firstName }} - {{ user.email }}</h1> -->
+      <v-container>
 
-      <v-toolbar-title>Date Filipina Web App</v-toolbar-title>
-
-      <v-spacer></v-spacer>
-
-      <v-btn icon>
-        <v-icon>mdi-chat</v-icon>
-      </v-btn>
-
-      <v-btn @click="logout" icon>
-        <v-icon>mdi-logout-variant</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <br>
-    <h1>Welcome {{ $store.state.user.firstName }} - {{ $store.state.user.email }}</h1>
-
-    <v-main>
-      <v-container
-        class="fill-height"
-        fluid
-      >
-
-      <v-flex d-flex>
-        <v-layout wrap>
-            <v-flex md2 v-for="user in dashboardUsers" :key="user.id">
-                <v-card
-                  class="mx-auto"
-                  style="marginBottom: 25px; marginRight: 5px; marginLeft: 5px;"
+      <v-row>
+            <v-col cols="12" sm="6" md="4" lg="3" v-for="user in dashboardUsers" :key="user.id">
+                <!-- <v-card
                 >
-
-                <!-- v-bind:src="user.userProfileMainImageUrl" -->
                   <v-img
-                    
-                    height="400px"
+                    v-bind:src="user.userProfileMainImageUrl"
+                    height="200px"
                     @click="viewUser(user)"
                   ></v-img>
 
@@ -48,67 +21,103 @@
                   </v-card-subtitle>
 
                   <v-card-actions>
-                    <v-btn @click="chatUser(user)">Chat</v-btn>
+                    <v-btn text @click="chatUser(user)">
+                      <v-icon left>mdi-message</v-icon>
+                       Chat
+                    </v-btn>
 
-                    <v-btn
-                      
-                    >
+                    <v-btn text @click="likeUser(user.uid)">
+                      <v-icon left>mdi-thumb-up</v-icon>
                       Like
                     </v-btn>
 
                     <v-spacer></v-spacer>
                     
                   </v-card-actions>
+                </v-card> -->
 
-                  <v-expand-transition>
-                    <div v-show="show">
-                      <v-divider></v-divider>
+                <v-card>
+                  <v-img
+                    @click="viewUser(user)"
+                    v-bind:src="user.userProfileMainImageUrl"
+                    class="white--text align-end"
+                    gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                    height="200px"
+                  >
+                    <v-card-title>{{ user.firstName }}, {{ user.age }} </v-card-title>
+                  </v-img>
 
-                      <v-card-text>
-                        I'm a thing. But, like most politicians, he promised more than he could deliver. You won't have time for sleeping, soldier, not with all the bed making you'll be doing. Then we'll go with that data file! Hey, you add a one and two zeros to that or we walk! You're going to do his laundry? I've got to find a way to escape.
-                      </v-card-text>
-                    </div>
-                  </v-expand-transition>
+                  <v-card-actions>
+
+                    <v-btn text @click="chatUser(user)">
+                      <v-icon left>mdi-message</v-icon>
+                      Chat
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    
+
+                    <v-btn text @click="likeUser(user.uid)">
+                      <v-icon left>mdi-thumb-up</v-icon>
+                      Like
+                    </v-btn>
+
+                    
+
+                    
+                  </v-card-actions>
                 </v-card>
-            </v-flex>
-        </v-layout>
-      </v-flex>
-      <center>
-<v-btn @click="reloadUsers" x-large color="success" dark>Get another batch</v-btn>
-      </center>
+            </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col cols="12">
+          <v-btn @click="reloadUsers" x-large color="success" dark block>View More</v-btn>
+        </v-col>
+      </v-row>
+      
   </v-container>
-      </v-main>
-  </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 
 export default {
+  layout: 'default',
   methods:{
     
   },
   data(){
     return {
+      user: {},
       firstName: '',
       dashboardUsers: [],
-      dashboardUsersUid: []
+      dashboardUsersUid: [],
     }
   },
-  created(){
-    this.getDashboardUsers()
-    this.dashboardUsers = this.$store.state.dashboardUsers
+  mounted(){
+    this.getUser()
   },
   methods:{
-    logout(){
-      this.$store
-        .dispatch("signOut")
-        .then(() => {
-          this.$router.push('/')
-        })
-        .catch(err => {
-          alert(err.message);
-        });
+    getUser(){
+      const userID = this.$store.getters.uid
+
+      var getUser = this.$store.dispatch("getUserById", {id: userID})
+      getUser.then(user => {
+                console.log(user.data())
+
+                if(!user.data()){
+                  alert("new user redirect to create profile page")
+                }
+
+                else {
+                  this.user = user.data()
+                  this.getDashboardUsers()
+                }
+
+                
+              }, error =>{
+                console.error("Got nothing from server. Prompt user to check internet connection and try again")
+              })
     },
 
     reloadUsers(){
@@ -116,7 +125,7 @@ export default {
     },
 
     viewUser(user){
-      console.log(user)
+
       this.$store.dispatch("setSelectedUser", { user: user })
       this.$router.push({
           path: 'user/' + user.uid
@@ -124,24 +133,50 @@ export default {
     },
 
     chatUser(user){
-      console.log(user)
-      this.$store.dispatch("setSelectedUser", { user: user })
       this.$router.push({
           path: 'chat/' + user.uid
       })
     },
 
     getDashboardUsers(){
-      this.$store.dispatch("getFeaturedUsers")
+      
+      const gender = this.user.gender
+
+      if (gender == "female"){
+
+          this.$store
+              .dispatch("getRegularUsers", { gender: "female"})
+              .then(result => {
+                  result.data.forEach(user =>{
+                    this.dashboardUsers.push(user)
+                  });
+              });
+
+      } else {
+
+          this.$store
+              .dispatch("getFeaturedUsers")
+              .then(result => {
+                  result.data.forEach(user =>{
+                    this.dashboardUsers.push(user)
+                  });
+              });
+      }
     },
 
-    likeUser(){
-      // this.$store.dispatch("likeUser", {currentUser: this.currentUser, otherUser: otherUser})
+    likeUser(otherUser){
+      this.$store.dispatch("likeUser", {currentUser: this.$store.getters.uid, otherUser: otherUser})
     }
   }
 }
 </script>
 
 <style>
+  body{
+      background-image: none !important;
+  }
 
+  .v-application {
+    background: white !important;
+  }
 </style>

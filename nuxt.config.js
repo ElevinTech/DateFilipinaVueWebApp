@@ -25,7 +25,18 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    ],
+    script: [
+      {
+          // sandbox
+          src: 'https://www.paypal.com/sdk/js?client-id=ARTbnXyuto7WKCpXBVl72iyYiTUaaWoVUHWR-8vAkwT1861Mczx9r4BNqRcuAnMG-kVaRkhpY4NN2_fc&vault=true',
+      
+          // live  
+          //src: 'https://www.paypal.com/sdk/js?client-id=AQUXV1pAFrpPAI9OxjiqQleISg2cPClxPn28dOtSk4_DakyRfzh--HzRgdXXnZQ_dUtabBBa4SOrdpIg&vault=true',
+          
+          src: 'https://js.stripe.com/v3/'
+        }
+  ]
   },
   /*
   ** Global CSS
@@ -38,7 +49,7 @@ export default {
   */
   plugins: [
     '~/plugins/firebase.js',
-    '~/plugins/fireauth.js'
+    '~/plugins/fireauth.js',
   ],
   /*
   ** Auto import components

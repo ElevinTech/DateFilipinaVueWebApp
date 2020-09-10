@@ -12,7 +12,7 @@ export default (context) => {
       // object, but for now, we'll just take everything
       if (user){
         store.commit('SET_UID', user.uid)
-        store.dispatch('getUser')
+        // store.dispatch('getUser')
       } else {
         store.commit('SET_USER', '')
         store.commit('SET_UID', '')

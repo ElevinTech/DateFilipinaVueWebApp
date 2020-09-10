@@ -30,4 +30,17 @@ export const functions = firebase.functions()
 //   console.log("helloWorldCallable")
 //   console.log(result.data)
 // });
+
+// var user = firebase.auth().currentUser;
+
+// if (user) {
+//   // User is signed in.
+//   store.commit('SET_UID', user.uid)
+//   store.dispatch('getUser')
+//   alert("test")
+// } else {
+//   // No user is signed in.
+//   alert("no user")
+// }
+
 export default firebase

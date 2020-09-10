@@ -1,5 +1,5 @@
 <template >
-  <v-container v-if="otherUser">
+  <v-container v-if="user">
 
     <v-row>
 
@@ -10,26 +10,21 @@
           <v-responsive class="">
               <v-avatar size="150">
               <img
-                :src="otherUser.userProfileMainImageUrl"
+                :src="user.userProfileMainImageUrl"
               >
             </v-avatar>
           </v-responsive>
 
-          <v-card-title class="justify-center">{{otherUser.firstName}}, {{otherUser.age}}</v-card-title>
-          <v-card-subtitle>{{otherUser.bio}}</v-card-subtitle>
+          <v-card-title class="justify-center">{{user.firstName}}, {{user.age}}</v-card-title>
+          <v-card-subtitle>{{user.bio}}</v-card-subtitle>
           <v-card-actions class="justify-center">
 
-            <v-btn outlined color="primary" @click="chatUser()">
-              <v-icon left>mdi-message</v-icon>
-              Chat
+            <v-btn outlined color="primary" to="/user/edit-profile" nuxt>
+              <v-icon left>mdi-cog</v-icon>
+              Edit Profile
             </v-btn>
             
 
-            <v-btn outlined color="success" @click="likeUser()">
-              <v-icon left>mdi-thumb-up</v-icon>
-              Like
-            </v-btn>
-            
           </v-card-actions>
         </v-card>
           
@@ -89,7 +84,7 @@
         <v-card-title>Personal Info</v-card-title>
         <v-divider class="mx-4"></v-divider>
         <v-card-text>
-            <div v-for="(value, name) in otherUser.personalInfo" v-bind:key="value.id" class="mb-2">
+            <div v-for="(value, name) in user.personalInfo" v-bind:key="value.id" class="mb-2">
               <div class="caption grey--text">{{ name }}</div> 
               <div>{{ value ? value : '-' }}</div>
             </div>
@@ -107,42 +102,27 @@
 
 <script>
 export default {
+
   data() {
     return {
-      uid: this.$route.params.id,
-      otherUser: this.$store.state.selectedUser,
-      currentUser: this.$store.state.user
+      uid: this.$store.getters.uid,
+      user: null
     };
   },
   methods:{
     getUser(){
-      
+      var getUser = this.$store.dispatch("getUserById", {id: this.uid})
+      getUser.then(user => {
+                this.user = user.data()
+              }, error =>{
+                console.error("Got nothing from server. Prompt user to check internet connection and try again")
+              })
     },
-    chatUser(){
-        // console.log(this.user)
-        // this.$store.dispatch("setSelectedUser", { user: user })
-        this.$router.replace({
-            path: '../chat/' + this.otherUser.uid
-            // path: '../chat'
-        })
-    },
-    likeUser(){
-      this.$store.dispatch("likeUser", {currentUser: this.$store.getters.uid, otherUser: this.otherUser.uid})
-    }
-
   },
   created(){
-    // console.log(this.user)
-    // var getUser = this.$store.dispatch("getUserById", {id: this.uid})
-
-    // getUser.then(user => {
-    //           this.user = user.data()
-    //         }, error =>{
-    //           console.error("Got nothing from server. Prompt user to check internet connection and try again")
-    //         })
+    this.getUser()
     
   },
-
 }
 </script>
 

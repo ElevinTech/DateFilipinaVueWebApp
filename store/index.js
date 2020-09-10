@@ -1,17 +1,34 @@
 import Vuex from 'vuex'
 import { auth, db, functions } from '~/plugins/firebase.js'
+import createPersistedState from "vuex-persistedstate";
+import * as Cookie from 'js-cookie';
 
 const createStore = () => {
   return new Vuex.Store({
+    // plugins: [
+    //   createPersistedState({
+    //       paths: ['user'],
+    //       storage: {
+    //           getItem: (key) => Cookie.getJSON(key),
+    //           setItem: (key, value) => Cookie.set(key, value, { expires: 3, secure: true }),
+    //           removeItem: (key) => Cookie.remove(key)
+    //       }
+    //   })
+    // ],
+
     state: {
       db: db,
-      user: '',
+      user: null,
       dashboardUsers: [],
       uid: '',
-      selectedUser: null
+      selectedUser: null 
     },
 
     getters: {
+      uid(state) {
+        return state.uid
+      },
+
       user(state) {
         return state.user
       },
@@ -60,10 +77,12 @@ const createStore = () => {
 
       getFeaturedUsers({ commit }){
         var getFeaturedUsers = functions.httpsCallable('getFeaturedUsers');
-        getFeaturedUsers({}).then(function(result) {
-          var users = result.data
-          commit('SET_DASHBOARD_USERS', { users })
-        });
+        return getFeaturedUsers({})
+      },
+
+      getRegularUsers({ commit }, { gender }){
+        var getRegularUsers = functions.httpsCallable('testDatabase');
+        return getRegularUsers({gender: gender})
       },
 
       async getRandomUsers ({ commit, rootState }) {
@@ -139,18 +158,54 @@ const createStore = () => {
 
         const time = Math.floor((new Date()).getTime() / 1000)
 
-        db.collection('user-likes').doc(currentUser.uid).collection('likes-who').doc(otherUser.uid).set({
-          user: otherUser.uid,
+        db.collection('user-likes').doc(currentUser).collection('likes-who').doc(otherUser).set({
+          user: otherUser,
           date: time.toString()
         });
 
-        db.collection('user-likes').doc(otherUser.uid).collection('liked-by').doc(currentUser.uid).set({
-          user: currentUser.uid,
+        db.collection('user-likes').doc(otherUser).collection('liked-by').doc(currentUser).set({
+          user: currentUser,
           date: time.toString()
         });
 
         alert("User liked!")
         
+      },
+
+      getChatConversation({ commit }, { userOne, userTwo }){
+        return db
+        .collection('user-chat-messages')
+        .doc(userOne)
+        .collection(userTwo)
+        .orderBy('createdDate', 'desc')
+        .get()
+      },
+
+      chat({ commit }, { message, userOne, userTwo }){
+        var sendChat = functions.httpsCallable('chat');
+
+        return sendChat({toId: userTwo, message: message})
+        // .then(function(result) {
+        //   var isSuccess = result.data
+
+        //   console.log(isSuccess)
+        // });
+      },
+
+      getLikes({ commit }){
+        return db
+        .collection('user-likes')
+        .doc(this.state.uid)
+        .collection('liked-by')
+        .get()
+      },
+
+      getViews(){
+        return db
+        .collection('user-visits')
+        .doc(this.state.uid)
+        .collection('visited-by')
+        .get()
       }
     }
   })
